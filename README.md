@@ -1,16 +1,8 @@
-# pace_blocks
+## License
 
-A new Flutter project.
+This project is licensed under the Creative Commons CC BY-NC-ND 4.0.
 
-## Getting Started
+✅ Allowed: for study and learning purposes.
+🚫 Prohibited: commercial use, creation of derivative apps, or modified redistribution.
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Read more in [LICENSE](./LICENSE).
