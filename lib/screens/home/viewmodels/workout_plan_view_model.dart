@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pace_blocks/screens/workouts/viewmodels/week_view_model.dart';
+import 'package:pace_blocks/screens/home/viewmodels/week_view_model.dart';
 
 class WorkoutPlanViewModel extends ChangeNotifier {
   final List<WeekViewModel> weeks;

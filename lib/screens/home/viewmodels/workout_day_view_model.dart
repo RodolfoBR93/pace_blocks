@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pace_blocks/screens/workouts/viewmodels/workout_session_view_model.dart';
+import 'package:pace_blocks/screens/create_workout/viewmodels/workout_session_view_model.dart';
 
 class WorkoutDayViewModel extends ChangeNotifier {
   final String dayName;
