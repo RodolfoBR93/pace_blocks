@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pace_blocks/data/dao/workout_type_dao.dart';
+import 'package:pace_blocks/screens/create_workout/viewmodels/workout_item.dart';
 import 'package:pace_blocks/screens/create_workout/viewmodels/workout_type.dart';
 
 class CreateWorkout extends StatefulWidget {
@@ -10,17 +11,14 @@ class CreateWorkout extends StatefulWidget {
   State<CreateWorkout> createState() => _CreateWorkoutState();
 }
 
-class WorkoutItem {
-  final String type;
-  final String minutes;
 
-  WorkoutItem({required this.type, required this.minutes});
-}
 
 class _CreateWorkoutState extends State<CreateWorkout> {
   final WorkoutTypeDao _dao = WorkoutTypeDao();
   List<WorkoutType> _workoutTypes = [];
   WorkoutType? _selectedType;
+  final List<String> _units = ['Minutos', 'Metros', 'Km'];
+  String _selectedUnit = '';
 
   @override
   void initState() {
@@ -42,15 +40,19 @@ class _CreateWorkoutState extends State<CreateWorkout> {
 
   final List<WorkoutItem> _workouts = [];
 
-  void _addWorkout() {
-    final minutes = _minutesController.text;
-    if (_selectedType != null && minutes.isNotEmpty) {
-      setState(() {
-        _workouts.add(WorkoutItem(type: _selectedType!.name, minutes: minutes));
-        _minutesController.clear();
-      });
-    }
+void _addWorkout() {
+  final value = _minutesController.text;
+  if (_selectedType != null && value.isNotEmpty) {
+    setState(() {
+      _workouts.add(WorkoutItem(
+        type: _selectedType!.name,
+        value: value,
+        unit: _selectedUnit,
+      ));
+      _minutesController.clear();
+    });
   }
+}
 
   void _removeWorkout(int index) {
     setState(() {
@@ -90,75 +92,111 @@ class _CreateWorkoutState extends State<CreateWorkout> {
                       ),
                       child: ListTile(
                         title: Text(item.type),
-                        trailing: Text('${item.minutes} min'),
+                        trailing: Text('${item.value} ${item.unit}'), 
                       ),
                     ),
                   );
                 },
               ),
 
-              const SizedBox(height: 24),
-
-              // Linha com Dropdown + Minutos
-              Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: DropdownButtonFormField<WorkoutType>(
-                      value: _selectedType,
-                      decoration: const InputDecoration(
-                        labelText: 'Tipo',
-                        border: OutlineInputBorder(),
-                      ),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedType = value!;
-                        });
-                      },
-                      items: _workoutTypes.map((type) {
-                        return DropdownMenuItem<WorkoutType>(
-                          value: type,
-                          child: Text(type.name),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: TextField(
-                      controller: _minutesController,
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: false,
-                        signed: false,
-                      ),
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      decoration: const InputDecoration(
-                        labelText: 'Minutos',
-                        hintText: 'Ex: 10',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
               const SizedBox(height: 16),
 
-              // Botão Adicionar
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: _addWorkout,
-                  icon: const Icon(Icons.add),
-                  label: const Text('Adicionar'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4),
-                    ),
+              // Linha com Dropdown + Minutos
+              AnimatedSwitcher(
+  duration: const Duration(milliseconds: 300),
+  child: Row(
+    key: ValueKey(_selectedUnit.isEmpty),
+    children: [
+      // Dropdown de tipo
+      Expanded(
+        flex: 3,
+        child: DropdownButtonFormField<WorkoutType>(
+          value: _selectedType,
+          decoration: const InputDecoration(
+            labelText: 'Tipo',
+            border: OutlineInputBorder(),
+          ),
+          onChanged: (value) {
+            setState(() {
+              _selectedType = value!;
+              _selectedUnit = '';
+              _minutesController.clear();
+            });
+          },
+          items: _workoutTypes.map((type) {
+            return DropdownMenuItem<WorkoutType>(
+              value: type,
+              child: Text(type.name),
+            );
+          }).toList(),
+        ),
+      ),
+      const SizedBox(width: 12),
+
+      // Unidade ou valor
+      Expanded(
+        flex: 2,
+        child: _selectedUnit.isEmpty
+            ? DropdownButtonFormField<String>(
+                value: null,
+                hint: const Text('Unidade'),
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedUnit = value!;
+                  });
+                },
+                items: _units.map((unit) {
+                  return DropdownMenuItem(
+                    value: unit,
+                    child: Text(unit),
+                  );
+                }).toList(),
+              )
+            : TextField(
+                controller: _minutesController,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: false,
+                  signed: false,
+                ),
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                decoration: InputDecoration(
+                  labelText: 'Valor ($_selectedUnit)',
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.clear),
+                    onPressed: () {
+                      setState(() {
+                        _selectedUnit = '';
+                        _minutesController.clear();
+                      });
+                    },
                   ),
                 ),
               ),
+      ),
+    ],
+  ),
+),
+const SizedBox(height: 16),
+
+  SizedBox(
+    width: double.infinity,
+    child: ElevatedButton.icon(
+      onPressed: _addWorkout,
+      icon: const Icon(Icons.add),
+      label: const Text('Adicionar'),
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4),
+        ),
+      ),
+    ),
+  ),
+
             ],
           ),
         ),
