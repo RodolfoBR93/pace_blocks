@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pace_blocks/data/dao/workout_type_dao.dart';
+import 'package:pace_blocks/screens/create_workout/viewmodels/workout_type.dart';
 
 class CreateWorkout extends StatefulWidget {
   const CreateWorkout({super.key});
@@ -7,18 +9,6 @@ class CreateWorkout extends StatefulWidget {
   @override
   State<CreateWorkout> createState() => _CreateWorkoutState();
 }
-
-const Map<String, String> workoutType = {
-  'Caminhada': 'CA',
-  'Trote': 'TR',
-  'Corrida Leve': 'CL',
-  'Corrida Moderada': 'CM',
-  'Corrida Forte': 'CF',
-  'Corrida Muito Forte': 'CMF',
-  'Vo2 Max': 'VO2',
-  'Descanso': 'DE',
-  'Treino Alongamento': 'TA'
-};
 
 class WorkoutItem {
   final String type;
@@ -28,16 +18,35 @@ class WorkoutItem {
 }
 
 class _CreateWorkoutState extends State<CreateWorkout> {
-  String? selectedKey = workoutType.keys.first;
+  final WorkoutTypeDao _dao = WorkoutTypeDao();
+  List<WorkoutType> _workoutTypes = [];
+  WorkoutType? _selectedType;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadWorkoutTypes();
+  }
+
+  void _loadWorkoutTypes() async {
+    final types = await _dao.getAllWorkoutTypes();
+    if (types.isNotEmpty) {
+      setState(() {
+        _workoutTypes = types;
+        _selectedType = types.first;
+      });
+    }
+  }
+
   final TextEditingController _minutesController = TextEditingController();
 
   final List<WorkoutItem> _workouts = [];
 
   void _addWorkout() {
     final minutes = _minutesController.text;
-    if (selectedKey != null && minutes.isNotEmpty) {
+    if (_selectedType != null && minutes.isNotEmpty) {
       setState(() {
-        _workouts.add(WorkoutItem(type: selectedKey!, minutes: minutes));
+        _workouts.add(WorkoutItem(type: _selectedType!.name, minutes: minutes));
         _minutesController.clear();
       });
     }
@@ -76,9 +85,9 @@ class _CreateWorkoutState extends State<CreateWorkout> {
                       child: const Icon(Icons.delete, color: Colors.white),
                     ),
                     child: Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4),
-                    ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4),
+                      ),
                       child: ListTile(
                         title: Text(item.type),
                         trailing: Text('${item.minutes} min'),
@@ -87,29 +96,29 @@ class _CreateWorkoutState extends State<CreateWorkout> {
                   );
                 },
               ),
-          
+
               const SizedBox(height: 24),
-          
+
               // Linha com Dropdown + Minutos
               Row(
                 children: [
                   Expanded(
                     flex: 2,
-                    child: DropdownButtonFormField<String>(
-                      value: selectedKey,
+                    child: DropdownButtonFormField<WorkoutType>(
+                      value: _selectedType,
                       decoration: const InputDecoration(
                         labelText: 'Tipo',
                         border: OutlineInputBorder(),
                       ),
                       onChanged: (value) {
                         setState(() {
-                          selectedKey = value!;
+                          _selectedType = value!;
                         });
                       },
-                      items: workoutType.keys.map((String key) {
-                        return DropdownMenuItem<String>(
-                          value: key,
-                          child: Text(key),
+                      items: _workoutTypes.map((type) {
+                        return DropdownMenuItem<WorkoutType>(
+                          value: type,
+                          child: Text(type.name),
                         );
                       }).toList(),
                     ),
@@ -132,9 +141,9 @@ class _CreateWorkoutState extends State<CreateWorkout> {
                   ),
                 ],
               ),
-          
+
               const SizedBox(height: 16),
-          
+
               // Botão Adicionar
               SizedBox(
                 width: double.infinity,

@@ -1,90 +1,112 @@
+
+import 'dart:io';
 import 'package:pace_blocks/screens/create_workout/viewmodels/workout_type.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-
 class DatabaseHelper {
-  static final DatabaseHelper instance = DatabaseHelper._init();
+  static final DatabaseHelper _instance = DatabaseHelper._internal();
+
+  factory DatabaseHelper() => _instance;
+
   static Database? _database;
 
-  DatabaseHelper._init();
+  DatabaseHelper._internal();
 
   Future<Database> get database async {
-    _database ??= await _initDB('workouts.db');
+    if (_database != null) return _database!;
+    _database = await _initDB('workouts.db');
     return _database!;
   }
 
-  Future<Database> _initDB(String fileName) async {
+  Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
-    final path = join(dbPath, fileName);
+    final path = join(dbPath, filePath);
 
-    return await openDatabase(path, version: 1, onCreate: _createDB);
+    return await openDatabase(
+      path,
+      version: 1,
+      onCreate: _onCreate
+    );
   }
 
-  Future<void> _createDB(Database db, int version) async {
+  Future _onCreate(Database db, int version) async {
+	//create workout_types table
     await db.execute('''
       CREATE TABLE workout_types (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         code TEXT NOT NULL,
-        locale TEXT NOT NULL 
+        locale TEXT NOT NULL
       )
     ''');
 
-    await db.insert('workout_types', {
-      'name': 'Caminhada',
-      'code': 'CA',
-      'locale': 'pt-br',
-    });
-    await db.insert('workout_types', {
-      'name': 'Trote',
-      'code': 'TR',
-      'locale': 'pt-br',
-    });
-    await db.insert('workout_types', {
-      'name': 'Corrida Leve',
-      'code': 'CL',
-      'locale': 'pt-br',
-    });
-    await db.insert('workout_types', {
-      'name': 'Corrida Moderada',
-      'code': 'CM',
-      'locale': 'pt-br',
-    });
-    await db.insert('workout_types', {
-      'name': 'Corrida Forte',
-      'code': 'CF',
-      'locale': 'pt-br',
-    });
-    await db.insert('workout_types', {
-      'name': 'Corrida Muito Forte',
-      'code': 'CMF',
-      'locale': 'pt-br',
-    });
-    await db.insert('workout_types', {
-      'name': 'Vo2 Max',
-      'code': 'VO2',
-      'locale': 'pt-br',
-    });
-    await db.insert('workout_types', {
-      'name': 'Descanso',
-      'code': 'DE',
-      'locale': 'pt-br',
-    });
-    await db.insert('workout_types', {
-      'name': 'Treino Alongamento',
-      'code': 'TA',
-      'locale': 'pt-br',
-    });
+    //create workout_sessions table
+    await db.execute('''
+      CREATE TABLE workout_sessions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        repetitions INTEGER NOT NULL,
+        duration TEXT NOT NULL,
+        workout_type_id INTEGER NOT NULL,
+        FOREIGN KEY(workout_type_id) REFERENCES workout_type(id)
+      )
+    ''');
+
+    //create workout_day table
+    await db.execute('''
+      CREATE TABLE workout_day (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        day_name TEXT NOT NULL,
+        session_name TEXT NOT NULL
+      )
+    ''');
+
+    //create workout_day_session table
+    await db.execute('''
+      CREATE TABLE workout_day_session (
+        day_id INTEGER NOT NULL,
+        session_id INTEGER NOT NULL,
+        FOREIGN KEY(day_id) REFERENCES workout_day(id),
+        FOREIGN KEY(session_id) REFERENCES workout_session(id)
+      )
+    ''');
+
+    //create workout_week table
+    await db.execute('''
+      CREATE TABLE workout_week (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        week_number INTEGER NOT NULL
+      )
+    ''');
+
+    //create week_day  table
+    await db.execute('''
+      CREATE TABLE week_day (
+        week_id INTEGER NOT NULL,
+        day_id INTEGER NOT NULL,
+        FOREIGN KEY(week_id) REFERENCES workout_week(id),
+        FOREIGN KEY(day_id) REFERENCES workout_day(id)
+      )
+    ''');
+  }
+  
+
+  Future<int> insert(String table, Map<String, dynamic> data) async {
+    final db = await database;
+    return await db.insert(table, data);
   }
 
-  Future<List<WorkoutType>> getAllWorkoutTypes() async {
-    final db = await instance.database;
-    final result = await db.query('workout_types');
-    return result.map((map) => WorkoutType.fromMap(map)).toList();
+  Future<List<Map<String, dynamic>>> query(String table) async {
+    final db = await database;
+    return await db.query(table);
   }
 
-  Future<void> insertWorkoutType(WorkoutType workoutType) async {
-    final db = await instance.database;
-    await db.insert('workout_types', workoutType.toMap());
+  Future<int> update(String table, Map<String, dynamic> data, String where, List<dynamic> whereArgs) async {
+    final db = await database;
+    return await db.update(table, data, where: where, whereArgs: whereArgs);
+  }
+
+  Future<int> delete(String table, String where, List<dynamic> whereArgs) async {
+    final db = await database;
+    return await db.delete(table, where: where, whereArgs: whereArgs);
   }
 }
