@@ -11,8 +11,6 @@ class CreateWorkout extends StatefulWidget {
   State<CreateWorkout> createState() => _CreateWorkoutState();
 }
 
-
-
 class _CreateWorkoutState extends State<CreateWorkout> {
   final WorkoutTypeDao _dao = WorkoutTypeDao();
   List<WorkoutType> _workoutTypes = [];
@@ -40,19 +38,22 @@ class _CreateWorkoutState extends State<CreateWorkout> {
 
   final List<WorkoutItem> _workouts = [];
 
-void _addWorkout() {
-  final value = _minutesController.text;
-  if (_selectedType != null && value.isNotEmpty) {
-    setState(() {
-      _workouts.add(WorkoutItem(
-        type: _selectedType!.name,
-        value: value,
-        unit: _selectedUnit,
-      ));
-      _minutesController.clear();
-    });
+  void _addWorkout() {
+    final value = _minutesController.text;
+    if (_selectedType != null && value.isNotEmpty) {
+      setState(() {
+        _workouts.add(
+          WorkoutItem(
+            type: _selectedType!.name,
+            value: value,
+            unit: _selectedUnit,
+          ),
+        );
+        _minutesController.clear();
+        _selectedUnit = '';
+      });
+    }
   }
-}
 
   void _removeWorkout(int index) {
     setState(() {
@@ -92,7 +93,7 @@ void _addWorkout() {
                       ),
                       child: ListTile(
                         title: Text(item.type),
-                        trailing: Text('${item.value} ${item.unit}'), 
+                        trailing: Text('${item.value} ${item.unit}'),
                       ),
                     ),
                   );
@@ -103,100 +104,102 @@ void _addWorkout() {
 
               // Linha com Dropdown + Minutos
               AnimatedSwitcher(
-  duration: const Duration(milliseconds: 300),
-  child: Row(
-    key: ValueKey(_selectedUnit.isEmpty),
-    children: [
-      // Dropdown de tipo
-      Expanded(
-        flex: 3,
-        child: DropdownButtonFormField<WorkoutType>(
-          value: _selectedType,
-          decoration: const InputDecoration(
-            labelText: 'Tipo',
-            border: OutlineInputBorder(),
-          ),
-          onChanged: (value) {
-            setState(() {
-              _selectedType = value!;
-              _selectedUnit = '';
-              _minutesController.clear();
-            });
-          },
-          items: _workoutTypes.map((type) {
-            return DropdownMenuItem<WorkoutType>(
-              value: type,
-              child: Text(type.name),
-            );
-          }).toList(),
-        ),
-      ),
-      const SizedBox(width: 12),
+                duration: const Duration(milliseconds: 300),
+                child: Row(
+                  key: ValueKey(_selectedUnit.isEmpty),
+                  children: [
+                    // Dropdown de tipo
+                    Expanded(
+                      flex: 3,
+                      child: DropdownButtonFormField<WorkoutType>(
+                        value: _selectedType,
+                        decoration: const InputDecoration(
+                          labelText: 'Tipo',
+                          border: OutlineInputBorder(),
+                        ),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedType = value!;
+                            _selectedUnit = '';
+                            _minutesController.clear();
+                          });
+                        },
+                        items: _workoutTypes.map((type) {
+                          return DropdownMenuItem<WorkoutType>(
+                            value: type,
+                            child: Text(type.name),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
 
-      // Unidade ou valor
-      Expanded(
-        flex: 2,
-        child: _selectedUnit.isEmpty
-            ? DropdownButtonFormField<String>(
-                value: null,
-                hint: const Text('Unidade'),
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
+                    // Unidade ou valor
+                    Expanded(
+                      flex: 2,
+                      child: _selectedUnit.isEmpty
+                          ? DropdownButtonFormField<String>(
+                              value: null,
+                              hint: const Text('Unidade'),
+                              decoration: const InputDecoration(
+                                border: OutlineInputBorder(),
+                              ),
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedUnit = value!;
+                                });
+                              },
+                              items: _units.map((unit) {
+                                return DropdownMenuItem(
+                                  value: unit,
+                                  child: Text(unit),
+                                );
+                              }).toList(),
+                            )
+                          : TextField(
+                              controller: _minutesController,
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                    decimal: false,
+                                    signed: false,
+                                  ),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                              ],
+                              decoration: InputDecoration(
+                                labelText: 'Valor ($_selectedUnit)',
+                                border: const OutlineInputBorder(),
+                                suffixIcon: IconButton(
+                                  icon: const Icon(Icons.clear),
+                                  onPressed: () {
+                                    setState(() {
+                                      _selectedUnit = '';
+                                      _minutesController.clear();
+                                    });
+                                  },
+                                ),
+                              ),
+                            ),
+                    ),
+                  ],
                 ),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedUnit = value!;
-                  });
-                },
-                items: _units.map((unit) {
-                  return DropdownMenuItem(
-                    value: unit,
-                    child: Text(unit),
-                  );
-                }).toList(),
-              )
-            : TextField(
-                controller: _minutesController,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: false,
-                  signed: false,
-                ),
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration: InputDecoration(
-                  labelText: 'Valor ($_selectedUnit)',
-                  border: const OutlineInputBorder(),
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.clear),
-                    onPressed: () {
-                      setState(() {
-                        _selectedUnit = '';
-                        _minutesController.clear();
-                      });
-                    },
+              ),
+              const SizedBox(height: 16),
+
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: _addWorkout,
+                  icon: const Icon(Icons.add),
+                  label: const Text('Adicionar'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4),
+                    ),
                   ),
                 ),
               ),
-      ),
-    ],
-  ),
-),
-const SizedBox(height: 16),
-
-  SizedBox(
-    width: double.infinity,
-    child: ElevatedButton.icon(
-      onPressed: _addWorkout,
-      icon: const Icon(Icons.add),
-      label: const Text('Adicionar'),
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4),
-        ),
-      ),
-    ),
-  ),
-
             ],
           ),
         ),
