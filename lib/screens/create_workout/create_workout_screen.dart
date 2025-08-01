@@ -64,7 +64,16 @@ class _CreateWorkoutState extends State<CreateWorkout> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Criar Treino')),
+      appBar: AppBar(title: const Text('Criar Treino'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context, _workouts);
+            },
+            child: const Text('Salvar', style: TextStyle(color: Colors.black)),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
