@@ -4,14 +4,14 @@ import 'package:pace_blocks/data/dao/workout_type_dao.dart';
 import 'package:pace_blocks/screens/create_workout/viewmodels/workout_item.dart';
 import 'package:pace_blocks/screens/create_workout/viewmodels/workout_type.dart';
 
-class CreateWorkout extends StatefulWidget {
-  const CreateWorkout({super.key});
+class CreateWorkoutScreen extends StatefulWidget {
+  const CreateWorkoutScreen({super.key});
 
   @override
-  State<CreateWorkout> createState() => _CreateWorkoutState();
+  State<CreateWorkoutScreen> createState() => _CreateWorkoutScreenState();
 }
 
-class _CreateWorkoutState extends State<CreateWorkout> {
+class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
   final WorkoutTypeDao _dao = WorkoutTypeDao();
   List<WorkoutType> _workoutTypes = [];
   WorkoutType? _selectedType;
@@ -44,9 +44,11 @@ class _CreateWorkoutState extends State<CreateWorkout> {
       setState(() {
         _workouts.add(
           WorkoutItem(
-            type: _selectedType!.name,
+            id: null,
+            workoutSessionId: null, 
+            unitTypeId: _units.indexOf(_selectedUnit) + 1,
             value: value,
-            unit: _selectedUnit,
+            workoutTypeId: _selectedType!.id,
           ),
         );
         _minutesController.clear();
@@ -87,7 +89,7 @@ class _CreateWorkoutState extends State<CreateWorkout> {
                 itemBuilder: (context, index) {
                   final item = _workouts[index];
                   return Dismissible(
-                    key: Key('${item.type}-$index'),
+                    key: Key(item.id.toString()),
                     direction: DismissDirection.endToStart,
                     onDismissed: (_) => _removeWorkout(index),
                     background: Container(
@@ -101,8 +103,11 @@ class _CreateWorkoutState extends State<CreateWorkout> {
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: ListTile(
-                        title: Text(item.type),
-                        trailing: Text('${item.value} ${item.unit}'),
+                        title: Text(_selectedType?.name ?? 'Tipo não selecionado'),
+                        trailing: Text(
+                          '${item.value} ${_selectedUnit.isEmpty ? 'Unidade' : _selectedUnit}',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ),
                   );
@@ -121,7 +126,7 @@ class _CreateWorkoutState extends State<CreateWorkout> {
                     Expanded(
                       flex: 3,
                       child: DropdownButtonFormField<WorkoutType>(
-                        value: _selectedType,
+                        initialValue: _selectedType,
                         decoration: const InputDecoration(
                           labelText: 'Tipo',
                           border: OutlineInputBorder(),
@@ -148,7 +153,7 @@ class _CreateWorkoutState extends State<CreateWorkout> {
                       flex: 2,
                       child: _selectedUnit.isEmpty
                           ? DropdownButtonFormField<String>(
-                              value: null,
+                              initialValue: null,
                               hint: const Text('Unidade'),
                               decoration: const InputDecoration(
                                 border: OutlineInputBorder(),

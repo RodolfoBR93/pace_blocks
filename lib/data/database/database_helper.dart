@@ -1,6 +1,4 @@
 
-import 'dart:io';
-import 'package:pace_blocks/screens/create_workout/viewmodels/workout_type.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 class DatabaseHelper {
@@ -30,13 +28,42 @@ class DatabaseHelper {
   }
 
   Future _onCreate(Database db, int version) async {
-	//create workout_types table
+    //create locales table
     await db.execute('''
-      CREATE TABLE workout_types (
+      CREATE TABLE locales (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        code TEXT NOT NULL
+      )
+    ''');
+
+    //create workout_types table
+      await db.execute('''
+        CREATE TABLE workout_types (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          code TEXT NOT NULL,
+          locale_id INTEGER NOT NULL,
+          FOREIGN KEY(locale_id) REFERENCES locales(id)
+        )
+      ''');
+
+    //create units_type table
+    await db.execute('''
+      CREATE TABLE units_type (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
-        code TEXT NOT NULL,
-        locale TEXT NOT NULL
+        locale_id INTEGER NOT NULL,
+        FOREIGN KEY(locale_id) REFERENCES locales(id)
+      )
+    ''');
+
+    //create user_peferences table
+    await db.execute('''
+      CREATE TABLE week_days (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        locale_id INTEGER NOT NULL,
+        FOREIGN KEY(locale_id) REFERENCES locales(id)
       )
     ''');
 
@@ -44,29 +71,51 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE workout_sessions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        repetitions INTEGER NOT NULL,
-        duration TEXT NOT NULL,
-        workout_type_id INTEGER NOT NULL,
-        FOREIGN KEY(workout_type_id) REFERENCES workout_type(id)
+        repetitions INTEGER NOT NULL
       )
     ''');
 
-    //create workout_day table
+    //create user table
     await db.execute('''
-      CREATE TABLE workout_day (
+      CREATE TABLE user (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        day_name TEXT NOT NULL,
-        session_name TEXT NOT NULL
+        name INTEGER NOT NULL
+      )
+    ''');
+
+    //create user_peferences table
+    await db.execute('''
+      CREATE TABLE user_peferences (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        locale_id INTEGER NOT NULL,
+        user_id INTEGER NOT NULL,
+        FOREIGN KEY(user_id) REFERENCES user(id),
+        FOREIGN KEY(locale_id) REFERENCES locales(id)
+      )
+    ''');
+    //create workout_items table
+    await db.execute('''
+      CREATE TABLE workout_items (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        workout_type_id INTEGER NOT NULL,
+        unit_type_id INTEGER NOT NULL,
+        value INTEGER NOT NULL,
+        workout_session_id INTEGER NOT NULL,
+        FOREIGN KEY(workout_type_id) REFERENCES workout_types(id),
+        FOREIGN KEY(unit_type_id) REFERENCES units_type(id),
+        FOREIGN KEY(workout_session_id) REFERENCES workout_sessions(id)
       )
     ''');
 
     //create workout_day_session table
     await db.execute('''
       CREATE TABLE workout_day_session (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
         day_id INTEGER NOT NULL,
-        session_id INTEGER NOT NULL,
-        FOREIGN KEY(day_id) REFERENCES workout_day(id),
-        FOREIGN KEY(session_id) REFERENCES workout_session(id)
+        workout_sessions_id INTEGER NOT NULL,
+        FOREIGN KEY(day_id) REFERENCES week_days(id),
+        FOREIGN KEY(workout_sessions_id) REFERENCES workout_sessions(id)
       )
     ''');
 
@@ -74,17 +123,8 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE workout_week (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        week_number INTEGER NOT NULL
-      )
-    ''');
-
-    //create week_day  table
-    await db.execute('''
-      CREATE TABLE week_day (
-        week_id INTEGER NOT NULL,
-        day_id INTEGER NOT NULL,
-        FOREIGN KEY(week_id) REFERENCES workout_week(id),
-        FOREIGN KEY(day_id) REFERENCES workout_day(id)
+        workout_day_session_id INTEGER NOT NULL,
+        FOREIGN KEY(workout_day_session_id) REFERENCES workout_day_session(id)
       )
     ''');
   }

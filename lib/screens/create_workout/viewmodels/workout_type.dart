@@ -11,7 +11,7 @@ class WorkoutType {
       'id': id,
       'name': name,
       'code': code,
-      'locale': locale,
+      'locale_id': locale,
     };
   }
 
@@ -20,7 +20,7 @@ class WorkoutType {
       id: map['id'],
       name: map['name'],
       code: map['code'],
-      locale: map['locale'],
+      locale: map['locale_id'],
     );
   }
 }
