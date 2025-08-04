@@ -3,23 +3,7 @@
 * Salvar treino
 
 --------------------------------------------------------
-🏠 HomePageScreen – Sugestões de melhorias
-✅ O que está bom:
-Uso adequado do BottomNavigationBar.
 
-Organização das opções de navegação com _widgetOptions.
-
-🔧 Melhorias sugeridas:
-Evite usar Center() vazio como placeholder:
-Substitua por uma tela inicial mais útil ou uma tela de boas-vindas.
-
-Evite hardcode de _widgetOptions:
-Declare _widgetOptions como uma propriedade (late final) no initState se for dinâmico ou use um método getter para escalabilidade.
-
-Icones e textos no BottomNavigationBar:
-Use constantes para ícones e textos para facilitar localização e internacionalização futura.
-
----------------------------------------------------------------------------------
 
 🏃‍♂️ CreateWorkoutScreen – Sugestões de melhorias
 ✅ O que está bom:
