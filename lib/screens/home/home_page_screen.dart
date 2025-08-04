@@ -11,6 +11,18 @@ class HomePageScreen extends StatefulWidget {
 
 class _HomePageScreenState extends State<HomePageScreen> {
   int _selectedIndex = 0;
+  static const String _homeLabel = 'Home';
+  static const String _workoutLabel = 'Treinos';
+
+  List<Widget> get _screens => const [HomeDashboard(), CreateWorkoutScreen()];
+
+  static const List<BottomNavigationBarItem> _navItems = [
+    BottomNavigationBarItem(icon: Icon(Icons.home), label: _homeLabel),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.directions_run),
+      label: _workoutLabel,
+    ),
+  ];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -18,27 +30,16 @@ class _HomePageScreenState extends State<HomePageScreen> {
     });
   }
 
-  List<Widget> get _widgetOptions => const [
-    HomeDashboard(),
-    CreateWorkoutScreen(),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(index: _selectedIndex, children: _widgetOptions),
+      body: IndexedStack(index: _selectedIndex, children: _screens),
 
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.blueAccent,
         onTap: _onItemTapped,
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.directions_run),
-            label: 'Treinos',
-          ),
-        ],
+        items: _navItems,
       ),
     );
   }
