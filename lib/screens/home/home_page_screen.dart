@@ -18,7 +18,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
     });
   }
 
-  static const List<Widget> _widgetOptions = <Widget>[
+  List<Widget> get _widgetOptions => const [
     HomeDashboard(),
     CreateWorkoutScreen(),
   ];
@@ -26,27 +26,20 @@ class _HomePageScreenState extends State<HomePageScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: _widgetOptions,
-      ),
+      body: IndexedStack(index: _selectedIndex, children: _widgetOptions),
 
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.blueAccent,
         onTap: _onItemTapped,
         items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
             icon: Icon(Icons.directions_run),
             label: 'Treinos',
           ),
         ],
-        ),
-      
+      ),
     );
   }
 }
