@@ -16,7 +16,7 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
   List<WorkoutType> _workoutTypes = [];
   WorkoutType? _selectedType;
   final List<String> _units = ['Minutos', 'Metros', 'Km'];
-  String _selectedUnit = '';
+  String? _selectedUnit;
 
   @override
   void initState() {
@@ -46,13 +46,13 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
           WorkoutItem(
             id: null,
             workoutSessionId: null, 
-            unitTypeId: _units.indexOf(_selectedUnit) + 1,
+            unitTypeId: _units.indexOf(_selectedUnit!) + 1,
             value: value,
             workoutTypeId: _selectedType!.id,
           ),
         );
         _minutesController.clear();
-        _selectedUnit = '';
+        _selectedUnit = null;
       });
     }
   }
@@ -105,7 +105,7 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
                       child: ListTile(
                         title: Text(_selectedType?.name ?? 'Tipo não selecionado'),
                         trailing: Text(
-                          '${item.value} ${_selectedUnit.isEmpty ? 'Unidade' : _selectedUnit}',
+                          '${item.value} ${_selectedUnit ?? 'Unidade'}',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
@@ -120,7 +120,7 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
                 child: Row(
-                  key: ValueKey(_selectedUnit.isEmpty),
+                  key: ValueKey(_selectedUnit == null),
                   children: [
                     // Dropdown de tipo
                     Expanded(
@@ -151,7 +151,7 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
                     // Unidade ou valor
                     Expanded(
                       flex: 2,
-                      child: _selectedUnit.isEmpty
+                      child: _selectedUnit == null
                           ? DropdownButtonFormField<String>(
                               value: null,
                               hint: const Text('Unidade'),
