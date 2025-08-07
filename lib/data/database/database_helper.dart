@@ -135,9 +135,9 @@ class DatabaseHelper {
     return await db.insert(table, data);
   }
 
-  Future<List<Map<String, dynamic>>> query(String table) async {
+  Future<List<Map<String, dynamic>>> query(String table,columns) async {
     final db = await database;
-    return await db.query(table);
+    return await db.query(table,columns: columns);
   }
 
   Future<int> update(String table, Map<String, dynamic> data, String where, List<dynamic> whereArgs) async {

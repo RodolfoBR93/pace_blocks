@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pace_blocks/data/dao/workout_type_dao.dart';
+import 'package:pace_blocks/screens/create_workout/viewmodels/unit_type.dart';
 import 'package:pace_blocks/screens/create_workout/viewmodels/workout_item.dart';
 import 'package:pace_blocks/screens/create_workout/viewmodels/workout_type.dart';
 
@@ -40,15 +41,15 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
 
   void _addWorkout() {
     final value = _minutesController.text;
-    if (_selectedType != null && value.isNotEmpty) {
+    if (_selectedType != null && value.isNotEmpty && _selectedUnit != null) {
       setState(() {
         _workouts.add(
           WorkoutItem(
             id: null,
             workoutSessionId: null, 
-            unitTypeId: _units.indexOf(_selectedUnit!) + 1,
+            workoutType:_selectedType!,
+            unitType: UnitType(name: 'km', locale: 1),//_units.indexOf(_selectedUnit!) + 1,
             value: value,
-            workoutTypeId: _selectedType!.id,
           ),
         );
         _minutesController.clear();
@@ -103,7 +104,7 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: ListTile(
-                        title: Text(_selectedType?.name ?? 'Tipo não selecionado'),
+                        title:Text(item.workoutType.name),
                         trailing: Text(
                           '${item.value} ${_selectedUnit ?? 'Unidade'}',
                           style: const TextStyle(fontWeight: FontWeight.bold),
@@ -134,7 +135,7 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
                         onChanged: (value) {
                           setState(() {
                             _selectedType = value!;
-                            _selectedUnit = '';
+                            _selectedUnit = null;
                             _minutesController.clear();
                           });
                         },

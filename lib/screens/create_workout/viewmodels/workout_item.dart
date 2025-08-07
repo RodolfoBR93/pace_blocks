@@ -1,35 +1,38 @@
+import 'package:pace_blocks/screens/create_workout/viewmodels/unit_type.dart';
+import 'package:pace_blocks/screens/create_workout/viewmodels/workout_type.dart';
+
 class WorkoutItem {
   final int? id;
   final int? workoutSessionId;
-  final int? unitTypeId;
+  final WorkoutType workoutType;
+  final UnitType unitType;
   final String value;
-  final int? workoutTypeId;
 
   WorkoutItem({
     required this.id,
     required this.workoutSessionId,
-    required this.unitTypeId,
+    required this.workoutType,
+    required this.unitType,
     required this.value,
-    required this.workoutTypeId,
   });
 
   Map<String, dynamic> toMap() {
-    return{
+    return {
       'id': id,
       'workoutSessionId': workoutSessionId,
-      'unitTypeId': unitTypeId,
+      'workoutType': workoutType,
+      'unitType': unitType,
       'value': value,
-      'workoutTypeId': workoutTypeId,
     };
   }
 
-  factory WorkoutItem.fromMap(Map<String, dynamic> map){
+  factory WorkoutItem.fromMap(Map<String, dynamic> map) {
     return WorkoutItem(
       id: map['id'],
       workoutSessionId: map['workoutSessionId'],
-      unitTypeId: map['unitTypeId'],
+      workoutType: map['workoutType'],
+      unitType: map['unitType'],
       value: map['value'],
-      workoutTypeId: map['workoutTypeId'],
     );
   }
 }
