@@ -19,9 +19,9 @@ class WorkoutItem {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'workoutSessionId': workoutSessionId,
-      'workoutType': workoutType,
-      'unitType': unitType,
+      'workout_session_id': workoutSessionId,
+      'workout_type_id': workoutType.id,
+      'unit_type_id': unitType.id,
       'value': value,
     };
   }
@@ -29,10 +29,19 @@ class WorkoutItem {
   factory WorkoutItem.fromMap(Map<String, dynamic> map) {
     return WorkoutItem(
       id: map['id'],
-      workoutSessionId: map['workoutSessionId'],
-      workoutType: map['workoutType'],
-      unitType: map['unitType'],
-      value: map['value'],
+      workoutSessionId: map['workout_session_id'],
+      workoutType: WorkoutType.fromMap({
+        'id': map['workout_type_id'],
+        'name': '', // Será carregado separadamente se necessário
+        'code': '',
+        'locale_id': 0,
+      }),
+      unitType: UnitType.fromMap({
+        'id': map['unit_type_id'],
+        'name': '', // Será carregado separadamente se necessário
+        'locale_id': 0,
+      }),
+      value: map['value'].toString(),
     );
   }
 }

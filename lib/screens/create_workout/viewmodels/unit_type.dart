@@ -13,7 +13,9 @@ class UnitType {
     return UnitType(
       id: map['id'],
       name: map['name'],
-      locale: map['locale_id'],
+      locale: map['locale_id'] is int
+          ? map['locale_id']
+          : int.parse(map['locale_id'].toString()),
     );
   }
 }

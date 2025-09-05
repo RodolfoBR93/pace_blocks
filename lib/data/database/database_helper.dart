@@ -1,6 +1,6 @@
-
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
 
@@ -20,11 +20,7 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    return await openDatabase(
-      path,
-      version: 1,
-      onCreate: _onCreate
-    );
+    return await openDatabase(path, version: 1, onCreate: _onCreate);
   }
 
   Future _onCreate(Database db, int version) async {
@@ -37,7 +33,7 @@ class DatabaseHelper {
     ''');
 
     //create workout_types table
-      await db.execute('''
+    await db.execute('''
         CREATE TABLE workout_types (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           name TEXT NOT NULL,
@@ -128,24 +124,35 @@ class DatabaseHelper {
       )
     ''');
   }
-  
 
   Future<int> insert(String table, Map<String, dynamic> data) async {
     final db = await database;
     return await db.insert(table, data);
   }
 
-  Future<List<Map<String, dynamic>>> query(String table,columns) async {
+  Future<List<Map<String, dynamic>>> query(
+    String table, {
+    List<String>? columns,
+  }) async {
     final db = await database;
-    return await db.query(table,columns: columns);
+    return await db.query(table, columns: columns);
   }
 
-  Future<int> update(String table, Map<String, dynamic> data, String where, List<dynamic> whereArgs) async {
+  Future<int> update(
+    String table,
+    Map<String, dynamic> data,
+    String where,
+    List<dynamic> whereArgs,
+  ) async {
     final db = await database;
     return await db.update(table, data, where: where, whereArgs: whereArgs);
   }
 
-  Future<int> delete(String table, String where, List<dynamic> whereArgs) async {
+  Future<int> delete(
+    String table,
+    String where,
+    List<dynamic> whereArgs,
+  ) async {
     final db = await database;
     return await db.delete(table, where: where, whereArgs: whereArgs);
   }

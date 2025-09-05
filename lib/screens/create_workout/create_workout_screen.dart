@@ -127,7 +127,7 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
                     Expanded(
                       flex: 3,
                       child: DropdownButtonFormField<WorkoutType>(
-                        value: _selectedType,
+                        initialValue: _selectedType,
                         decoration: const InputDecoration(
                           labelText: 'Tipo',
                           border: OutlineInputBorder(),
@@ -154,7 +154,7 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
                       flex: 2,
                       child: _selectedUnit == null
                           ? DropdownButtonFormField<String>(
-                              value: null,
+                              initialValue: null,
                               hint: const Text('Unidade'),
                               decoration: const InputDecoration(
                                 border: OutlineInputBorder(),

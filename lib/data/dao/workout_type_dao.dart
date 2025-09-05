@@ -9,12 +9,10 @@ class WorkoutTypeDao {
   }
 
   Future<List<WorkoutType>> getAllWorkoutTypes() async {
-    final result = await dbHelper.query('workout_types', [
-      'id',
-      'name',
-      'code',
-      'locale_id',
-    ]);
+    final result = await dbHelper.query(
+      'workout_types',
+      columns: ['id', 'name', 'code', 'locale_id'],
+    );
     final map = result.map((e) => WorkoutType.fromMap(e)).toList();
     return map;
   }

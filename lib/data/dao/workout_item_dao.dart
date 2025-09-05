@@ -10,17 +10,12 @@ class WorkoutItemDao {
   }
 
   Future<List<WorkoutItem>> getAllWorkoutItems() async {
-    final result = await dbHelper.query('workout_items');
+    final result = await dbHelper.query('workout_items', columns: null);
     return result.map((e) => WorkoutItem.fromMap(e)).toList();
   }
 
   Future<void> updateWorkoutItem(WorkoutItem item) async {
-    await dbHelper.update(
-      'workout_items',
-      item.toMap(),
-      'id = ?',
-      [item.id],
-    );
+    await dbHelper.update('workout_items', item.toMap(), 'id = ?', [item.id]);
   }
 
   Future<void> deleteWorkoutItem(int id) async {

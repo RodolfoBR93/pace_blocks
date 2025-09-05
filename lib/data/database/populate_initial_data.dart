@@ -4,8 +4,8 @@ import 'package:pace_blocks/data/database/populate_workout_types.dart';
 Future<void> populateInitialData() async {
   final db = await DatabaseHelper().database;
 
-  final existingLocales = await db.query('locales');
-  if (existingLocales.isNotEmpty) return; 
+  final existingLocales = await db.query('locales', columns: null);
+  if (existingLocales.isNotEmpty) return;
 
   // Locales
   final locales = ['en', 'pt', 'es', 'fr', 'it', 'de', 'ja', 'zh', 'ru'];
@@ -28,7 +28,6 @@ Future<void> populateInitialData() async {
     'zh': ['分钟', '米', '公里'],
     'ru': ['Минуты', 'Метры', 'Километры'],
   };
- 
 
   for (final entry in unitTypes.entries) {
     final locale = entry.key;
