@@ -18,6 +18,7 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
   WorkoutType? _selectedType;
   final List<String> _units = ['Minutos', 'Metros', 'Km'];
   String? _selectedUnit;
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -26,11 +27,22 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
   }
 
   void _loadWorkoutTypes() async {
-    final types = await _dao.getAllWorkoutTypes();
-    if (types.isNotEmpty) {
+    try {
+      final types = await _dao.getAllWorkoutTypes();
+      if (types.isNotEmpty) {
+        setState(() {
+          _workoutTypes = types;
+          _selectedType = types.first;
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
       setState(() {
-        _workoutTypes = types;
-        _selectedType = types.first;
+        _isLoading = false;
       });
     }
   }
@@ -46,9 +58,12 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
         _workouts.add(
           WorkoutItem(
             id: null,
-            workoutSessionId: null, 
-            workoutType:_selectedType!,
-            unitType: UnitType(name: 'km', locale: 1),//_units.indexOf(_selectedUnit!) + 1,
+            workoutSessionId: null,
+            workoutType: _selectedType!,
+            unitType: UnitType(
+              name: 'km',
+              locale: 1,
+            ), //_units.indexOf(_selectedUnit!) + 1,
             value: value,
           ),
         );
@@ -67,7 +82,8 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Criar Treino'),
+      appBar: AppBar(
+        title: const Text('Criar Treino'),
         actions: [
           TextButton(
             onPressed: () {
@@ -104,7 +120,7 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: ListTile(
-                        title:Text(item.workoutType.name),
+                        title: Text(item.workoutType.name),
                         trailing: Text(
                           '${item.value} ${_selectedUnit ?? 'Unidade'}',
                           style: const TextStyle(fontWeight: FontWeight.bold),
@@ -126,26 +142,28 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
                     // Dropdown de tipo
                     Expanded(
                       flex: 3,
-                      child: DropdownButtonFormField<WorkoutType>(
-                        initialValue: _selectedType,
-                        decoration: const InputDecoration(
-                          labelText: 'Tipo',
-                          border: OutlineInputBorder(),
-                        ),
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedType = value!;
-                            _selectedUnit = null;
-                            _minutesController.clear();
-                          });
-                        },
-                        items: _workoutTypes.map((type) {
-                          return DropdownMenuItem<WorkoutType>(
-                            value: type,
-                            child: Text(type.name),
-                          );
-                        }).toList(),
-                      ),
+                      child: _isLoading
+                          ? const Center(child: CircularProgressIndicator())
+                          : DropdownButtonFormField<WorkoutType>(
+                              initialValue: _selectedType,
+                              decoration: const InputDecoration(
+                                labelText: 'Tipo',
+                                border: OutlineInputBorder(),
+                              ),
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedType = value!;
+                                  _selectedUnit = null;
+                                  _minutesController.clear();
+                                });
+                              },
+                              items: _workoutTypes.map((type) {
+                                return DropdownMenuItem<WorkoutType>(
+                                  value: type,
+                                  child: Text(type.name),
+                                );
+                              }).toList(),
+                            ),
                     ),
                     const SizedBox(width: 12),
 

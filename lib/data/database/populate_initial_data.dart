@@ -2,10 +2,38 @@ import 'package:pace_blocks/data/database/database_helper.dart';
 import 'package:pace_blocks/data/database/populate_workout_types.dart';
 
 Future<void> populateInitialData() async {
-  final db = await DatabaseHelper().database;
+  try {
+    final dbHelper = DatabaseHelper();
+    final db = await dbHelper.database;
 
-  final existingLocales = await db.query('locales', columns: null);
-  if (existingLocales.isNotEmpty) return;
+    final existingLocales = await db.query('locales', columns: null);
+    if (existingLocales.isNotEmpty) {
+      // Verificar se os dados estão corretos
+      final sampleWorkoutType = await db.query(
+        'workout_types',
+        columns: null,
+        limit: 1,
+      );
+      if (sampleWorkoutType.isNotEmpty) {
+        final localeId = sampleWorkoutType.first['locale_id'];
+        if (localeId is String) {
+          // Dados incorretos, limpar e recriar
+          await dbHelper.clearDatabase();
+          await _populateData();
+        }
+      }
+      return;
+    }
+
+    await _populateData();
+  } catch (e) {
+    // Erro silencioso - dados podem já existir
+  }
+}
+
+Future<void> _populateData() async {
+  final dbHelper = DatabaseHelper();
+  final db = await dbHelper.database;
 
   // Locales
   final locales = ['en', 'pt', 'es', 'fr', 'it', 'de', 'ja', 'zh', 'ru'];

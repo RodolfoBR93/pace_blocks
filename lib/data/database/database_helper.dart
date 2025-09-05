@@ -1,5 +1,6 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'dart:io';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -34,14 +35,14 @@ class DatabaseHelper {
 
     //create workout_types table
     await db.execute('''
-        CREATE TABLE workout_types (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT NOT NULL,
-          code TEXT NOT NULL,
-          locale_id INTEGER NOT NULL,
-          FOREIGN KEY(locale_id) REFERENCES locales(id)
-        )
-      ''');
+      CREATE TABLE workout_types (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        code TEXT NOT NULL,
+        locale_id INTEGER NOT NULL,
+        FOREIGN KEY(locale_id) REFERENCES locales(id)
+      )
+    ''');
 
     //create units_type table
     await db.execute('''
@@ -53,7 +54,7 @@ class DatabaseHelper {
       )
     ''');
 
-    //create user_peferences table
+    //create week_days table
     await db.execute('''
       CREATE TABLE week_days (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -75,13 +76,13 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE user (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name INTEGER NOT NULL
+        name TEXT NOT NULL
       )
     ''');
 
-    //create user_peferences table
+    //create user_preferences table
     await db.execute('''
-      CREATE TABLE user_peferences (
+      CREATE TABLE user_preferences (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         locale_id INTEGER NOT NULL,
         user_id INTEGER NOT NULL,
@@ -95,7 +96,7 @@ class DatabaseHelper {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         workout_type_id INTEGER NOT NULL,
         unit_type_id INTEGER NOT NULL,
-        value INTEGER NOT NULL,
+        value TEXT NOT NULL,
         workout_session_id INTEGER NOT NULL,
         FOREIGN KEY(workout_type_id) REFERENCES workout_types(id),
         FOREIGN KEY(unit_type_id) REFERENCES units_type(id),
@@ -155,5 +156,19 @@ class DatabaseHelper {
   ) async {
     final db = await database;
     return await db.delete(table, where: where, whereArgs: whereArgs);
+  }
+
+  Future<void> clearDatabase() async {
+    final db = await database;
+    await db.close();
+    _database = null;
+
+    // Deletar o arquivo do banco
+    final dbPath = await getDatabasesPath();
+    final path = join(dbPath, 'workouts.db');
+    final file = File(path);
+    if (await file.exists()) {
+      await file.delete();
+    }
   }
 }
