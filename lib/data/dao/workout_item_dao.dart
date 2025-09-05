@@ -9,8 +9,27 @@ class WorkoutItemDao {
     await dbHelper.insert('workout_items', item.toMap());
   }
 
+  Future<void> insertWorkoutItems(List<WorkoutItem> items) async {
+    final db = await dbHelper.database;
+    await db.transaction((txn) async {
+      for (final item in items) {
+        await txn.insert('workout_items', item.toMap());
+      }
+    });
+  }
+
   Future<List<WorkoutItem>> getAllWorkoutItems() async {
     final result = await dbHelper.query('workout_items', columns: null);
+    return result.map((e) => WorkoutItem.fromMap(e)).toList();
+  }
+
+  Future<List<WorkoutItem>> getWorkoutItemsBySession(int sessionId) async {
+    final db = await dbHelper.database;
+    final result = await db.query(
+      'workout_items',
+      where: 'workout_session_id = ?',
+      whereArgs: [sessionId],
+    );
     return result.map((e) => WorkoutItem.fromMap(e)).toList();
   }
 

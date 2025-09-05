@@ -4,6 +4,7 @@ import 'package:pace_blocks/data/dao/workout_type_dao.dart';
 import 'package:pace_blocks/screens/create_workout/viewmodels/unit_type.dart';
 import 'package:pace_blocks/screens/create_workout/viewmodels/workout_item.dart';
 import 'package:pace_blocks/screens/create_workout/viewmodels/workout_type.dart';
+import 'package:pace_blocks/services/workout_service.dart';
 
 class CreateWorkoutScreen extends StatefulWidget {
   const CreateWorkoutScreen({super.key});
@@ -14,11 +15,13 @@ class CreateWorkoutScreen extends StatefulWidget {
 
 class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
   final WorkoutTypeDao _dao = WorkoutTypeDao();
+  final WorkoutService _workoutService = WorkoutService();
   List<WorkoutType> _workoutTypes = [];
   WorkoutType? _selectedType;
   final List<String> _units = ['Minutos', 'Metros', 'Km'];
   String? _selectedUnit;
   bool _isLoading = true;
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -76,6 +79,53 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
     });
   }
 
+  Future<void> _saveWorkout() async {
+    if (_workouts.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Adicione pelo menos um exercício ao treino'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isSaving = true;
+    });
+
+    try {
+      final sessionId = await _workoutService.saveWorkout(_workouts);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Treino salvo com sucesso! ID da sessão: $sessionId'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // Retornar para a tela anterior com os dados salvos
+        Navigator.pop(context, {'saved': true, 'sessionId': sessionId});
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao salvar treino: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,10 +133,14 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
         title: const Text('Criar Treino'),
         actions: [
           TextButton(
-            onPressed: () {
-              Navigator.pop(context, _workouts);
-            },
-            child: const Text('Salvar', style: TextStyle(color: Colors.black)),
+            onPressed: _isSaving ? null : _saveWorkout,
+            child: _isSaving
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Text('Salvar', style: TextStyle(color: Colors.black)),
           ),
         ],
       ),
