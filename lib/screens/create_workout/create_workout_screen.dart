@@ -60,10 +60,7 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
             id: null,
             workoutSessionId: null,
             workoutType: _selectedType!,
-            unitType: UnitType(
-              name: 'km',
-              locale: 1,
-            ), //_units.indexOf(_selectedUnit!) + 1,
+            unitType: UnitType(name: _selectedUnit!, locale: 1),
             value: value,
           ),
         );
@@ -122,7 +119,7 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
                       child: ListTile(
                         title: Text(item.workoutType.name),
                         trailing: Text(
-                          '${item.value} ${_selectedUnit ?? 'Unidade'}',
+                          '${item.value} ${item.unitType.name}',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
