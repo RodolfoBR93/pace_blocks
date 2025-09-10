@@ -14,14 +14,22 @@ Future<void> populateInitialData() async {
         columns: null,
         limit: 1,
       );
+
+      // Verificar se as unidades estão corretas
+      final sampleUnitType = await db.query(
+        'units_type',
+        columns: null,
+        limit: 1,
+      );
+
       if (sampleWorkoutType.isNotEmpty) {
         final localeId = sampleWorkoutType.first['locale_id'];
         if (localeId is String) {
-          // Dados incorretos, limpar e recriar
-          await dbHelper.clearDatabase();
-          await _populateData();
+        await dbHelper.clearDatabase();
+        await _populateData();
         }
       }
+
       return;
     }
 
@@ -46,15 +54,15 @@ Future<void> _populateData() async {
 
   // Units types por idioma
   final unitTypes = {
-    'en': ['Minutes', 'Meters', 'Kilometers'],
-    'pt': ['Minutos', 'Metros', 'Quilômetros'],
-    'es': ['Minutos', 'Metros', 'Kilómetros'],
-    'fr': ['Minutes', 'Mètres', 'Kilomètres'],
-    'it': ['Minuti', 'Metri', 'Chilometri'],
-    'de': ['Minuten', 'Meter', 'Kilometer'],
-    'ja': ['分', 'メートル', 'キロメートル'],
-    'zh': ['分钟', '米', '公里'],
-    'ru': ['Минуты', 'Метры', 'Километры'],
+    'en': ['Minutes', 'Meters', 'Km'],
+    'pt': ['Minutos', 'Metros', 'Km'],
+    'es': ['Minutos', 'Metros', 'Km'],
+    'fr': ['Minutes', 'Mètres', 'Km'],
+    'it': ['Minuti', 'Metri', 'Km'],
+    'de': ['Minuten', 'Meter', 'Km'],
+    'ja': ['分', 'メートル', 'Km'],
+    'zh': ['分钟', '米', 'Km'],
+    'ru': ['Минуты', 'Метры', 'Km'],
   };
 
   for (final entry in unitTypes.entries) {
