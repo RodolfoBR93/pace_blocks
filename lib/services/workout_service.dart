@@ -2,6 +2,7 @@ import 'package:pace_blocks/data/dao/workout_item_dao.dart';
 import 'package:pace_blocks/data/dao/workout_session_dao.dart';
 import 'package:pace_blocks/data/dao/unit_type_dao.dart';
 import 'package:pace_blocks/screens/create_workout/viewmodels/workout_item.dart';
+import 'package:pace_blocks/screens/create_workout/viewmodels/unit_type.dart';
 import 'dart:io';
 
 class WorkoutService {
@@ -43,7 +44,11 @@ class WorkoutService {
         id: null,
         workoutSessionId: sessionId,
         workoutType: item.workoutType,
-        unitType: item.unitType,
+        unitType: UnitType(
+          id: unitTypeId,
+          name: item.unitType.name,
+          locale: item.unitType.locale,
+        ),
         value: item.value,
       );
       updatedItems.add(updatedItem);
