@@ -157,7 +157,7 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
                 itemBuilder: (context, index) {
                   final item = _workouts[index];
                   return Dismissible(
-                    key: Key(item.id.toString()),
+                    key: Key('workout_$index'),
                     direction: DismissDirection.endToStart,
                     onDismissed: (_) => _removeWorkout(index),
                     background: Container(
