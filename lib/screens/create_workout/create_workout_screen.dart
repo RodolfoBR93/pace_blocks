@@ -257,7 +257,7 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
                                   icon: const Icon(Icons.clear),
                                   onPressed: () {
                                     setState(() {
-                                      _selectedUnit = '';
+                                      _selectedUnit = null;
                                       _minutesController.clear();
                                     });
                                   },
