@@ -141,8 +141,14 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
           ),
         );
 
-        // Retornar para a tela anterior com os dados salvos
-        Navigator.pop(context, {'saved': true, 'sessionId': sessionId});
+        // Limpar o formulário após salvar com sucesso
+        setState(() {
+          _workouts.clear();
+          _minutesController.clear();
+          _selectedUnit = null;
+          _isEditing = false;
+          _editingIndex = null;
+        });
       }
     } catch (e) {
       if (mounted) {
