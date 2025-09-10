@@ -22,6 +22,8 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
   String? _selectedUnit;
   bool _isLoading = true;
   bool _isSaving = false;
+  bool _isEditing = false;
+  int? _editingIndex;
 
   @override
   void initState() {
@@ -58,15 +60,29 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
     final value = _minutesController.text;
     if (_selectedType != null && value.isNotEmpty && _selectedUnit != null) {
       setState(() {
-        _workouts.add(
-          WorkoutItem(
-            id: null,
-            workoutSessionId: null,
+        if (_isEditing && _editingIndex != null) {
+          // Editando item existente
+          _workouts[_editingIndex!] = WorkoutItem(
+            id: _workouts[_editingIndex!].id,
+            workoutSessionId: _workouts[_editingIndex!].workoutSessionId,
             workoutType: _selectedType!,
             unitType: UnitType(name: _selectedUnit!, locale: 1),
             value: value,
-          ),
-        );
+          );
+          _isEditing = false;
+          _editingIndex = null;
+        } else {
+          // Adicionando novo item
+          _workouts.add(
+            WorkoutItem(
+              id: null,
+              workoutSessionId: null,
+              workoutType: _selectedType!,
+              unitType: UnitType(name: _selectedUnit!, locale: 1),
+              value: value,
+            ),
+          );
+        }
         _minutesController.clear();
         _selectedUnit = null;
       });
@@ -76,6 +92,26 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
   void _removeWorkout(int index) {
     setState(() {
       _workouts.removeAt(index);
+    });
+  }
+
+  void _editWorkout(int index) {
+    final item = _workouts[index];
+    setState(() {
+      _isEditing = true;
+      _editingIndex = index;
+      _selectedType = item.workoutType;
+      _selectedUnit = item.unitType.name;
+      _minutesController.text = item.value;
+    });
+  }
+
+  void _cancelEdit() {
+    setState(() {
+      _isEditing = false;
+      _editingIndex = null;
+      _minutesController.clear();
+      _selectedUnit = null;
     });
   }
 
@@ -172,9 +208,13 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
                       ),
                       child: ListTile(
                         title: Text(item.workoutType.name),
-                        trailing: Text(
+                        subtitle: Text(
                           '${item.value} ${item.unitType.name}',
                           style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.edit),
+                          onPressed: () => _editWorkout(index),
                         ),
                       ),
                     ),
@@ -270,19 +310,39 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
               ),
               const SizedBox(height: 16),
 
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: _addWorkout,
-                  icon: const Icon(Icons.add),
-                  label: const Text('Adicionar'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4),
+              Row(
+                children: [
+                  if (_isEditing) ...[
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: _cancelEdit,
+                        icon: const Icon(Icons.cancel),
+                        label: const Text('Cancelar'),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          backgroundColor: Colors.grey,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                  ],
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: _addWorkout,
+                      icon: Icon(_isEditing ? Icons.save : Icons.add),
+                      label: Text(_isEditing ? 'Salvar' : 'Adicionar'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
             ],
           ),
