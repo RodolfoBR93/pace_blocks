@@ -21,7 +21,12 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    return await openDatabase(path, version: 1, onCreate: _onCreate);
+    return await openDatabase(
+      path,
+      version: 1,
+      onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
+    );
   }
 
   Future _onCreate(Database db, int version) async {
@@ -126,6 +131,10 @@ class DatabaseHelper {
     ''');
   }
 
+  Future _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    // Migrações futuras podem ser adicionadas aqui
+  }
+
   Future<int> insert(String table, Map<String, dynamic> data) async {
     final db = await database;
     return await db.insert(table, data);
@@ -170,5 +179,10 @@ class DatabaseHelper {
     if (await file.exists()) {
       await file.delete();
     }
+  }
+
+  Future<void> forceRecreateDatabase() async {
+    await clearDatabase();
+    _database = await _initDB('workouts.db');
   }
 }

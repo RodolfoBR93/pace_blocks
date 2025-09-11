@@ -23,6 +23,7 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
   bool _isLoading = true;
   bool _isSaving = false;
   bool _isEditing = false;
+  bool _isAdding = false;
   int? _editingIndex;
 
   @override
@@ -37,7 +38,7 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
       if (types.isNotEmpty) {
         setState(() {
           _workoutTypes = types;
-          _selectedType = types.first;
+          _selectedType = null; // Não definir tipo inicial
           _isLoading = false;
         });
       } else {
@@ -53,10 +54,20 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
   }
 
   final TextEditingController _minutesController = TextEditingController();
+  final TextEditingController _workoutNameController = TextEditingController();
 
   final List<WorkoutItem> _workouts = [];
 
-  void _addWorkout() {
+  void _startAdding() {
+    setState(() {
+      _isAdding = true;
+      _selectedType = null;
+      _selectedUnit = null;
+      _minutesController.clear();
+    });
+  }
+
+  void _confirmAddWorkout() {
     final value = _minutesController.text;
     if (_selectedType != null && value.isNotEmpty && _selectedUnit != null) {
       setState(() {
@@ -84,7 +95,9 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
           );
         }
         _minutesController.clear();
+        _selectedType = null;
         _selectedUnit = null;
+        _isAdding = false;
       });
     }
   }
@@ -99,6 +112,7 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
     final item = _workouts[index];
     setState(() {
       _isEditing = true;
+      _isAdding = true; // Mostrar campos durante edição
       _editingIndex = index;
       _selectedType = item.workoutType;
       _selectedUnit = item.unitType.name;
@@ -109,13 +123,25 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
   void _cancelEdit() {
     setState(() {
       _isEditing = false;
+      _isAdding = false;
       _editingIndex = null;
       _minutesController.clear();
+      _selectedType = null;
       _selectedUnit = null;
     });
   }
 
   Future<void> _saveWorkout() async {
+    if (_workoutNameController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Digite um nome para o treino'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
     if (_workouts.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -131,12 +157,17 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
     });
 
     try {
-      final sessionId = await _workoutService.saveWorkout(_workouts);
+      final sessionId = await _workoutService.saveWorkout(
+        _workouts,
+        _workoutNameController.text.trim(),
+      );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Treino salvo com sucesso! ID da sessão: $sessionId'),
+            content: Text(
+              'Treino "${_workoutNameController.text.trim()}" salvo com sucesso! ID da sessão: $sessionId',
+            ),
             backgroundColor: Colors.green,
           ),
         );
@@ -145,8 +176,11 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
         setState(() {
           _workouts.clear();
           _minutesController.clear();
+          _workoutNameController.clear();
+          _selectedType = null; // Não definir tipo inicial
           _selectedUnit = null;
           _isEditing = false;
+          _isAdding = false;
           _editingIndex = null;
         });
       }
@@ -171,6 +205,7 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: const Text('Criar Treino'),
         actions: [
@@ -187,10 +222,23 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
         ],
       ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             children: [
+              const SizedBox(height: 16),
+              // Campo de nome do treino
+              TextField(
+                controller: _workoutNameController,
+                decoration: const InputDecoration(
+                  labelText: 'Nome do Treino',
+                  hintText: 'Ex: Treino de Corrida Matinal',
+                  border: OutlineInputBorder(),
+                ),
+                textCapitalization: TextCapitalization.words,
+              ),
+              const SizedBox(height: 16),
+
               // Lista de treinos adicionados
               ListView.builder(
                 shrinkWrap: true,
@@ -230,95 +278,99 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
 
               const SizedBox(height: 16),
 
-              // Linha com Dropdown + Minutos
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                child: Row(
-                  key: ValueKey(_selectedUnit == null),
-                  children: [
-                    // Dropdown de tipo
-                    Expanded(
-                      flex: 3,
-                      child: _isLoading
-                          ? const Center(child: CircularProgressIndicator())
-                          : DropdownButtonFormField<WorkoutType>(
-                              initialValue: _selectedType,
-                              decoration: const InputDecoration(
-                                labelText: 'Tipo',
-                                border: OutlineInputBorder(),
+              // Campos de tipo e valor (só aparecem quando adicionando ou editando)
+              if (_isAdding) ...[
+                // Linha com Dropdown + Minutos
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  child: Row(
+                    key: ValueKey(_selectedUnit == null),
+                    children: [
+                      // Dropdown de tipo
+                      Expanded(
+                        flex: 3,
+                        child: _isLoading
+                            ? const Center(child: CircularProgressIndicator())
+                            : DropdownButtonFormField<WorkoutType>(
+                                initialValue: _selectedType,
+                                decoration: const InputDecoration(
+                                  labelText: 'Tipo',
+                                  hintText: 'Selecione um tipo',
+                                  border: OutlineInputBorder(),
+                                ),
+                                onChanged: (value) {
+                                  setState(() {
+                                    _selectedType = value;
+                                    _selectedUnit = null;
+                                    _minutesController.clear();
+                                  });
+                                },
+                                items: _workoutTypes.map((type) {
+                                  return DropdownMenuItem<WorkoutType>(
+                                    value: type,
+                                    child: Text(type.name),
+                                  );
+                                }).toList(),
                               ),
-                              onChanged: (value) {
-                                setState(() {
-                                  _selectedType = value!;
-                                  _selectedUnit = null;
-                                  _minutesController.clear();
-                                });
-                              },
-                              items: _workoutTypes.map((type) {
-                                return DropdownMenuItem<WorkoutType>(
-                                  value: type,
-                                  child: Text(type.name),
-                                );
-                              }).toList(),
-                            ),
-                    ),
-                    const SizedBox(width: 12),
+                      ),
+                      const SizedBox(width: 12),
 
-                    // Unidade ou valor
-                    Expanded(
-                      flex: 2,
-                      child: _selectedUnit == null
-                          ? DropdownButtonFormField<String>(
-                              initialValue: null,
-                              hint: const Text('Unidade'),
-                              decoration: const InputDecoration(
-                                border: OutlineInputBorder(),
-                              ),
-                              onChanged: (value) {
-                                setState(() {
-                                  _selectedUnit = value!;
-                                });
-                              },
-                              items: _units.map((unit) {
-                                return DropdownMenuItem(
-                                  value: unit,
-                                  child: Text(unit),
-                                );
-                              }).toList(),
-                            )
-                          : TextField(
-                              controller: _minutesController,
-                              keyboardType:
-                                  const TextInputType.numberWithOptions(
-                                    decimal: false,
-                                    signed: false,
+                      // Unidade ou valor
+                      Expanded(
+                        flex: 2,
+                        child: _selectedUnit == null
+                            ? DropdownButtonFormField<String>(
+                                initialValue: null,
+                                hint: const Text('Unidade'),
+                                decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
+                                ),
+                                onChanged: (value) {
+                                  setState(() {
+                                    _selectedUnit = value!;
+                                  });
+                                },
+                                items: _units.map((unit) {
+                                  return DropdownMenuItem(
+                                    value: unit,
+                                    child: Text(unit),
+                                  );
+                                }).toList(),
+                              )
+                            : TextField(
+                                controller: _minutesController,
+                                keyboardType:
+                                    const TextInputType.numberWithOptions(
+                                      decimal: false,
+                                      signed: false,
+                                    ),
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                ],
+                                decoration: InputDecoration(
+                                  labelText: 'Valor ($_selectedUnit)',
+                                  border: const OutlineInputBorder(),
+                                  suffixIcon: IconButton(
+                                    icon: const Icon(Icons.clear),
+                                    onPressed: () {
+                                      setState(() {
+                                        _selectedUnit = null;
+                                        _minutesController.clear();
+                                      });
+                                    },
                                   ),
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                              ],
-                              decoration: InputDecoration(
-                                labelText: 'Valor ($_selectedUnit)',
-                                border: const OutlineInputBorder(),
-                                suffixIcon: IconButton(
-                                  icon: const Icon(Icons.clear),
-                                  onPressed: () {
-                                    setState(() {
-                                      _selectedUnit = null;
-                                      _minutesController.clear();
-                                    });
-                                  },
                                 ),
                               ),
-                            ),
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
+              ],
 
               Row(
                 children: [
-                  if (_isEditing) ...[
+                  if (_isAdding) ...[
                     Expanded(
                       child: ElevatedButton.icon(
                         onPressed: _cancelEdit,
@@ -337,9 +389,9 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
                   ],
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: _addWorkout,
-                      icon: Icon(_isEditing ? Icons.save : Icons.add),
-                      label: Text(_isEditing ? 'Salvar' : 'Adicionar'),
+                      onPressed: _isAdding ? _confirmAddWorkout : _startAdding,
+                      icon: Icon(_isAdding ? Icons.save : Icons.add),
+                      label: Text(_isAdding ? 'Salvar' : 'Adicionar'),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(

@@ -1,5 +1,6 @@
 import 'package:pace_blocks/data/dao/workout_item_dao.dart';
 import 'package:pace_blocks/data/dao/workout_session_dao.dart';
+import 'package:pace_blocks/data/dao/workout_day_session_dao.dart';
 import 'package:pace_blocks/data/dao/unit_type_dao.dart';
 import 'package:pace_blocks/screens/create_workout/viewmodels/workout_item.dart';
 import 'package:pace_blocks/screens/create_workout/viewmodels/unit_type.dart';
@@ -8,14 +9,22 @@ import 'dart:io';
 class WorkoutService {
   final WorkoutSessionDao _sessionDao = WorkoutSessionDao();
   final WorkoutItemDao _itemDao = WorkoutItemDao();
+  final WorkoutDaySessionDao _daySessionDao = WorkoutDaySessionDao();
   final UnitTypeDao _unitTypeDao = UnitTypeDao();
 
-  Future<int> saveWorkout(List<WorkoutItem> workoutItems) async {
+  Future<int> saveWorkout(
+    List<WorkoutItem> workoutItems,
+    String workoutName,
+  ) async {
     if (workoutItems.isEmpty) {
       throw Exception('Não é possível salvar um treino vazio');
     }
 
-    // 1. Criar uma sessão de treino
+    if (workoutName.trim().isEmpty) {
+      throw Exception('Nome do treino é obrigatório');
+    }
+
+    // 1. Criar uma sessão de treino (para repetições)
     final sessionId = await _sessionDao.insertWorkoutSession(
       1,
     ); // 1 repetição por padrão
@@ -57,7 +66,14 @@ class WorkoutService {
     // 4. Salvar todos os items em uma transação
     await _itemDao.insertWorkoutItems(updatedItems);
 
-    return sessionId;
+    // 5. Criar o workout_day_session com o nome do treino
+    final daySessionId = await _daySessionDao.insertWorkoutDaySession(
+      workoutName.trim(),
+      1, // Por enquanto usando day_id = 1 (pode ser configurado depois)
+      sessionId,
+    );
+
+    return daySessionId;
   }
 
   Future<List<WorkoutItem>> getWorkoutBySession(int sessionId) async {
