@@ -6,12 +6,7 @@
 
 
 🏃‍♂️ CreateWorkoutScreen – Sugestões de melhorias
-✅ O que está bom:
-Separação de lógica com DAO.
 
-Uso do AnimatedSwitcher para trocar campos com fluidez.
-
-Boa organização dos elementos.
 
 🔧 Melhorias sugeridas:
 Estado de _selectedUnit:

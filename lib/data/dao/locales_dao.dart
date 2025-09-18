@@ -8,17 +8,10 @@ class LocalesDao {
   }
 
   Future<List<Map<String, dynamic>>> getAllLocales() async {
-    return await dbHelper.query('locales');
+    return await dbHelper.query('locales', columns: null);
   }
 
   Future<void> updateLocale(int id, String name) async {
-    await dbHelper.update(
-      'locales',
-      {'name': name},
-      'id = ?',
-      [id],
-    );
+    await dbHelper.update('locales', {'name': name}, 'id = ?', [id]);
   }
-
-  
 }
