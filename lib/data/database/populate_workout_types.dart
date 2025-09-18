@@ -6,14 +6,12 @@ Future<void> populateInitialWorkoutTypesWithLocaleIds(
 ) async {
   try {
     final dao = WorkoutTypeDao();
-    final existing = await dao.getAllWorkoutTypes();
+    final existing = await dao.getWorkoutTypes();
     if (existing.isNotEmpty) return;
 
-    //final locale = PlatformDispatcher.instance.locale.languageCode;
-    // String locale = 'en'; // English
-    final List<WorkoutType> types = <WorkoutType>[];
+    final List<WorkoutType> workoutTypes = <WorkoutType>[];
 
-    types.addAll([
+    workoutTypes.addAll([
       WorkoutType(name: 'Walk', code: 'CA', locale: localeIdMap['en']!),
       WorkoutType(name: 'Jog', code: 'TR', locale: localeIdMap['en']!),
       WorkoutType(name: 'Light Run', code: 'CL', locale: localeIdMap['en']!),
@@ -29,7 +27,7 @@ Future<void> populateInitialWorkoutTypesWithLocaleIds(
       WorkoutType(name: 'Stretching', code: 'TA', locale: localeIdMap['en']!),
     ]);
     // Portuguese
-    types.addAll([
+    workoutTypes.addAll([
       WorkoutType(name: 'Caminhada', code: 'CA', locale: localeIdMap['pt']!),
       WorkoutType(name: 'Trote', code: 'TR', locale: localeIdMap['pt']!),
       WorkoutType(name: 'Corrida Leve', code: 'CL', locale: localeIdMap['pt']!),
@@ -57,7 +55,7 @@ Future<void> populateInitialWorkoutTypesWithLocaleIds(
       ),
     ]);
     // Spanish
-    types.addAll([
+    workoutTypes.addAll([
       WorkoutType(name: 'Caminata', code: 'CA', locale: localeIdMap['es']!),
       WorkoutType(name: 'Trote', code: 'TR', locale: localeIdMap['es']!),
       WorkoutType(
@@ -85,7 +83,7 @@ Future<void> populateInitialWorkoutTypesWithLocaleIds(
       WorkoutType(name: 'Estiramiento', code: 'TA', locale: localeIdMap['es']!),
     ]);
     // French
-    types.addAll([
+    workoutTypes.addAll([
       WorkoutType(name: 'Marche', code: 'CA', locale: localeIdMap['fr']!),
       WorkoutType(name: 'Trot', code: 'TR', locale: localeIdMap['fr']!),
       WorkoutType(
@@ -109,7 +107,7 @@ Future<void> populateInitialWorkoutTypesWithLocaleIds(
       WorkoutType(name: 'Étirement', code: 'TA', locale: localeIdMap['fr']!),
     ]);
     // Italian
-    types.addAll([
+    workoutTypes.addAll([
       WorkoutType(name: 'Camminata', code: 'CA', locale: localeIdMap['it']!),
       WorkoutType(name: 'Trotto', code: 'TR', locale: localeIdMap['it']!),
       WorkoutType(
@@ -133,7 +131,7 @@ Future<void> populateInitialWorkoutTypesWithLocaleIds(
       WorkoutType(name: 'Stretching', code: 'TA', locale: localeIdMap['it']!),
     ]);
     // German
-    types.addAll([
+    workoutTypes.addAll([
       WorkoutType(name: 'Gehen', code: 'CA', locale: localeIdMap['de']!),
       WorkoutType(name: 'Trab', code: 'TR', locale: localeIdMap['de']!),
       WorkoutType(
@@ -161,7 +159,7 @@ Future<void> populateInitialWorkoutTypesWithLocaleIds(
       WorkoutType(name: 'Dehnen', code: 'TA', locale: localeIdMap['de']!),
     ]);
     // Japanese
-    types.addAll([
+    workoutTypes.addAll([
       WorkoutType(name: 'ウォーキング', code: 'CA', locale: localeIdMap['ja']!),
       WorkoutType(name: 'ジョギング', code: 'TR', locale: localeIdMap['ja']!),
       WorkoutType(name: '軽いランニング', code: 'CL', locale: localeIdMap['ja']!),
@@ -173,7 +171,7 @@ Future<void> populateInitialWorkoutTypesWithLocaleIds(
       WorkoutType(name: 'ストレッチング', code: 'TA', locale: localeIdMap['ja']!),
     ]);
     // Chinese
-    types.addAll([
+    workoutTypes.addAll([
       WorkoutType(name: '步行', code: 'CA', locale: localeIdMap['zh']!),
       WorkoutType(name: '慢跑', code: 'TR', locale: localeIdMap['zh']!),
       WorkoutType(name: '轻松跑步', code: 'CL', locale: localeIdMap['zh']!),
@@ -185,7 +183,7 @@ Future<void> populateInitialWorkoutTypesWithLocaleIds(
       WorkoutType(name: '拉伸', code: 'TA', locale: localeIdMap['zh']!),
     ]);
     // Russian
-    types.addAll([
+    workoutTypes.addAll([
       WorkoutType(name: 'Ходьба', code: 'CA', locale: localeIdMap['ru']!),
       WorkoutType(name: 'Бег трусцой', code: 'TR', locale: localeIdMap['ru']!),
       WorkoutType(name: 'Легкий бег', code: 'CL', locale: localeIdMap['ru']!),
@@ -204,10 +202,10 @@ Future<void> populateInitialWorkoutTypesWithLocaleIds(
       WorkoutType(name: 'Отдых', code: 'DE', locale: localeIdMap['ru']!),
       WorkoutType(name: 'Растяжка', code: 'TA', locale: localeIdMap['ru']!),
     ]);
-    for (final type in types) {
+    for (final type in workoutTypes) {
       await dao.insertWorkoutType(type);
     }
   } catch (e) {
-    // Erro silencioso - dados podem já existir
+    rethrow;
   }
 }

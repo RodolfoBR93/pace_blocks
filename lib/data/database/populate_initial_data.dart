@@ -8,14 +8,12 @@ Future<void> populateInitialData() async {
 
     final existingLocales = await db.query('locales', columns: null);
     if (existingLocales.isNotEmpty) {
-      // Verificar se os dados estão corretos
       final sampleWorkoutType = await db.query(
         'workout_types',
         columns: null,
         limit: 1,
       );
 
-      // Verificar se as unidades estão corretas
       final sampleUnitType = await db.query(
         'units_type',
         columns: null,
@@ -25,17 +23,24 @@ Future<void> populateInitialData() async {
       if (sampleWorkoutType.isNotEmpty) {
         final localeId = sampleWorkoutType.first['locale_id'];
         if (localeId is String) {
-        await dbHelper.clearDatabase();
-        await _populateData();
+          await dbHelper.clearDatabase();
+          await _populateData();
         }
       }
 
+      if (sampleUnitType.isNotEmpty) {
+        final localeId = sampleUnitType.first['locale_id'];
+        if (localeId is String) {
+          await dbHelper.clearDatabase();
+          await _populateData();
+        }
+      }
       return;
     }
 
     await _populateData();
   } catch (e) {
-    // Erro silencioso - dados podem já existir
+    rethrow;
   }
 }
 
@@ -43,7 +48,6 @@ Future<void> _populateData() async {
   final dbHelper = DatabaseHelper();
   final db = await dbHelper.database;
 
-  // Locales
   final locales = ['en', 'pt', 'es', 'fr', 'it', 'de', 'ja', 'zh', 'ru'];
   final localeIdMap = <String, int>{};
 
@@ -52,7 +56,6 @@ Future<void> _populateData() async {
     localeIdMap[code] = id;
   }
 
-  // Units types por idioma
   final unitTypes = {
     'en': ['Minutes', 'Meters', 'Km'],
     'pt': ['Minutos', 'Metros', 'Km'],
@@ -74,6 +77,5 @@ Future<void> _populateData() async {
     }
   }
 
-  // Workout types (chamada reaproveitada)
   await populateInitialWorkoutTypesWithLocaleIds(localeIdMap);
 }

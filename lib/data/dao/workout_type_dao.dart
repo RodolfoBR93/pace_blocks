@@ -9,18 +9,16 @@ class WorkoutTypeDao {
     await dbHelper.insert('workout_types', type.toMap());
   }
 
-  Future<List<WorkoutType>> getAllWorkoutTypes() async {
+  Future<List<WorkoutType>> getWorkoutTypes() async {
     try {
-      // Obter o idioma do dispositivo
       final deviceLocale = Platform.localeName.split('_')[0];
 
-      // Fazer JOIN com a tabela locales para filtrar por idioma
       final db = await dbHelper.database;
       final result = await db.rawQuery(
         '''
         SELECT wt.id, wt.name, wt.code, wt.locale_id
         FROM workout_types wt
-        JOIN locales l ON wt.locale_id = l.id
+          INNER JOIN locales l ON wt.locale_id = l.id
         WHERE l.code = ?
       ''',
         [deviceLocale],
@@ -29,7 +27,6 @@ class WorkoutTypeDao {
       final map = result.map((e) => WorkoutType.fromMap(e)).toList();
       return map;
     } catch (e) {
-      // Se houver erro, retornar tipos em inglês como fallback
       return await _getFallbackWorkoutTypes();
     }
   }
@@ -40,7 +37,7 @@ class WorkoutTypeDao {
       final result = await db.rawQuery('''
         SELECT wt.id, wt.name, wt.code, wt.locale_id
         FROM workout_types wt
-        JOIN locales l ON wt.locale_id = l.id
+          INNER JOIN locales l ON wt.locale_id = l.id
         WHERE l.code = 'en'
       ''');
 

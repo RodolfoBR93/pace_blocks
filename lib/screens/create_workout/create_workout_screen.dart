@@ -34,7 +34,7 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
 
   void _loadWorkoutTypes() async {
     try {
-      final types = await _dao.getAllWorkoutTypes();
+      final types = await _dao.getWorkoutTypes();
       if (types.isNotEmpty) {
         setState(() {
           _workoutTypes = types;
