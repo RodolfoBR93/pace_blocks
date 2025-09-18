@@ -30,7 +30,6 @@ class DatabaseHelper {
   }
 
   Future _onCreate(Database db, int version) async {
-    //create locales table
     await db.execute('''
       CREATE TABLE locales (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -38,7 +37,6 @@ class DatabaseHelper {
       )
     ''');
 
-    //create workout_types table
     await db.execute('''
       CREATE TABLE workout_types (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -49,7 +47,6 @@ class DatabaseHelper {
       )
     ''');
 
-    //create units_type table
     await db.execute('''
       CREATE TABLE units_type (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -59,7 +56,6 @@ class DatabaseHelper {
       )
     ''');
 
-    //create week_days table
     await db.execute('''
       CREATE TABLE week_days (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -69,7 +65,6 @@ class DatabaseHelper {
       )
     ''');
 
-    //create workout_sessions table
     await db.execute('''
       CREATE TABLE workout_sessions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -77,7 +72,6 @@ class DatabaseHelper {
       )
     ''');
 
-    //create user table
     await db.execute('''
       CREATE TABLE user (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -85,7 +79,6 @@ class DatabaseHelper {
       )
     ''');
 
-    //create user_preferences table
     await db.execute('''
       CREATE TABLE user_preferences (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -95,7 +88,7 @@ class DatabaseHelper {
         FOREIGN KEY(locale_id) REFERENCES locales(id)
       )
     ''');
-    //create workout_items table
+
     await db.execute('''
       CREATE TABLE workout_items (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -109,7 +102,6 @@ class DatabaseHelper {
       )
     ''');
 
-    //create workout_day_session table
     await db.execute('''
       CREATE TABLE workout_day_session (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -121,7 +113,6 @@ class DatabaseHelper {
       )
     ''');
 
-    //create workout_week table
     await db.execute('''
       CREATE TABLE workout_week (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
