@@ -5,11 +5,11 @@ import 'package:pace_blocks/screens/home/home_page_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await populateInitialData();
-  runApp(const MyApp());
+  runApp(const PaceBlocks());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class PaceBlocks extends StatelessWidget {
+  const PaceBlocks({super.key});
 
   // This widget is the root of your application.
   @override

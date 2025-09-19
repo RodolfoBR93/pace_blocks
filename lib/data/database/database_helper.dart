@@ -122,9 +122,7 @@ class DatabaseHelper {
     ''');
   }
 
-  Future _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    // Migrações futuras podem ser adicionadas aqui
-  }
+  Future _onUpgrade(Database db, int oldVersion, int newVersion) async {}
 
   Future<int> insert(String table, Map<String, dynamic> data) async {
     final db = await database;
@@ -163,7 +161,6 @@ class DatabaseHelper {
     await db.close();
     _database = null;
 
-    // Deletar o arquivo do banco
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, 'workouts.db');
     final file = File(path);
