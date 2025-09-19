@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pace_blocks/l10n/app_localizations.dart';
 import 'package:pace_blocks/data/dao/workout_type_dao.dart';
+import 'package:pace_blocks/data/dao/unit_type_dao.dart';
 import 'package:pace_blocks/screens/create_workout/viewmodels/unit_type.dart';
 import 'package:pace_blocks/screens/create_workout/viewmodels/workout_item.dart';
 import 'package:pace_blocks/screens/create_workout/viewmodels/workout_type.dart';
@@ -14,11 +16,12 @@ class CreateWorkoutScreen extends StatefulWidget {
 }
 
 class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
-  final WorkoutTypeDao _dao = WorkoutTypeDao();
+  final WorkoutTypeDao _typeDao = WorkoutTypeDao();
+  final UnitTypeDao _unitDao = UnitTypeDao();
   final WorkoutService _workoutService = WorkoutService();
   List<WorkoutType> _workoutTypes = [];
+  List<Map<String, dynamic>> _unitTypes = [];
   WorkoutType? _selectedType;
-  final List<String> _units = ['Minutos', 'Metros', 'Km'];
   String? _selectedUnit;
   bool _isLoading = true;
   bool _isSaving = false;
@@ -34,18 +37,17 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
 
   void _loadWorkoutTypes() async {
     try {
-      final types = await _dao.getWorkoutTypes();
-      if (types.isNotEmpty) {
-        setState(() {
-          _workoutTypes = types;
-          _selectedType = null; // Não definir tipo inicial
-          _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      final types = await _typeDao.getWorkoutTypes();
+      final units = await _unitDao.getUnitTypesByLocale(
+        'pt',
+      );
+
+      setState(() {
+        _workoutTypes = types;
+        _unitTypes = units;
+        _selectedType = null;
+        _isLoading = false;
+      });
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -132,10 +134,13 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
   }
 
   Future<void> _saveWorkout() async {
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return;
+
     if (_workoutNameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Digite um nome para o treino'),
+        SnackBar(
+          content: Text(l10n.enterWorkoutName),
           backgroundColor: Colors.orange,
         ),
       );
@@ -144,8 +149,8 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
 
     if (_workouts.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Adicione pelo menos um exercício ao treino'),
+        SnackBar(
+          content: Text(l10n.addAtLeastOneExercise),
           backgroundColor: Colors.orange,
         ),
       );
@@ -166,7 +171,10 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Treino "${_workoutNameController.text.trim()}" salvo com sucesso! ID da sessão: $sessionId',
+              l10n.workoutSavedSuccessfully(
+                _workoutNameController.text.trim(),
+                sessionId,
+              ),
             ),
             backgroundColor: Colors.green,
           ),
@@ -188,7 +196,7 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao salvar treino: $e'),
+            content: Text(l10n.errorSavingWorkout(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -204,10 +212,15 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        title: const Text('Criar Treino'),
+        title: Text(l10n.createWorkout),
         actions: [
           TextButton(
             onPressed: _isSaving ? null : _saveWorkout,
@@ -217,7 +230,7 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
                     height: 16,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('Salvar', style: TextStyle(color: Colors.black)),
+                : Text(l10n.save, style: TextStyle(color: Colors.black)),
           ),
         ],
       ),
@@ -230,9 +243,9 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
               // Campo de nome do treino
               TextField(
                 controller: _workoutNameController,
-                decoration: const InputDecoration(
-                  labelText: 'Nome do Treino',
-                  hintText: 'Ex: Treino de Corrida Matinal',
+                decoration: InputDecoration(
+                  labelText: l10n.workoutName,
+                  hintText: l10n.workoutNameHint,
                   border: OutlineInputBorder(),
                 ),
                 textCapitalization: TextCapitalization.words,
@@ -293,9 +306,9 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
                             ? const Center(child: CircularProgressIndicator())
                             : DropdownButtonFormField<WorkoutType>(
                                 initialValue: _selectedType,
-                                decoration: const InputDecoration(
-                                  labelText: 'Tipo',
-                                  hintText: 'Selecione um tipo',
+                                decoration: InputDecoration(
+                                  labelText: l10n.type,
+                                  hintText: l10n.selectType,
                                   border: OutlineInputBorder(),
                                 ),
                                 onChanged: (value) {
@@ -321,7 +334,7 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
                         child: _selectedUnit == null
                             ? DropdownButtonFormField<String>(
                                 initialValue: null,
-                                hint: const Text('Unidade'),
+                                hint: Text(l10n.unit),
                                 decoration: const InputDecoration(
                                   border: OutlineInputBorder(),
                                 ),
@@ -330,10 +343,10 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
                                     _selectedUnit = value!;
                                   });
                                 },
-                                items: _units.map((unit) {
-                                  return DropdownMenuItem(
-                                    value: unit,
-                                    child: Text(unit),
+                                items: _unitTypes.map((unit) {
+                                  return DropdownMenuItem<String>(
+                                    value: unit['name'] as String,
+                                    child: Text(unit['name'] as String),
                                   );
                                 }).toList(),
                               )
@@ -348,7 +361,7 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
                                   FilteringTextInputFormatter.digitsOnly,
                                 ],
                                 decoration: InputDecoration(
-                                  labelText: 'Valor ($_selectedUnit)',
+                                  labelText: l10n.value(_selectedUnit!),
                                   border: const OutlineInputBorder(),
                                   suffixIcon: IconButton(
                                     icon: const Icon(Icons.clear),
@@ -375,7 +388,7 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
                       child: ElevatedButton.icon(
                         onPressed: _cancelEdit,
                         icon: const Icon(Icons.cancel),
-                        label: const Text('Cancelar'),
+                        label: Text(l10n.cancel),
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
@@ -391,7 +404,7 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
                     child: ElevatedButton.icon(
                       onPressed: _isAdding ? _confirmAddWorkout : _startAdding,
                       icon: Icon(_isAdding ? Icons.save : Icons.add),
-                      label: Text(_isAdding ? 'Salvar' : 'Adicionar'),
+                      label: Text(_isAdding ? l10n.save : l10n.add),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(

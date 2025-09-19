@@ -1,0 +1,141 @@
+{
+  "@@locale": "en",
+  "home": "Home",
+  "@home": {
+    "description": "Home tab label"
+  },
+  "workouts": "Workouts",
+  "@workouts": {
+    "description": "Workouts tab label"
+  },
+  "helloUser": "Hello, {userName} 👋",
+  "@helloUser": {
+    "description": "Welcome message with user name",
+    "placeholders": {
+      "userName": {
+        "type": "String"
+      }
+    }
+  },
+  "totalWorkouts": "🏃 Total workouts: {count}",
+  "@totalWorkouts": {
+    "description": "Total workouts count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "caloriesBurned": "🔥 Calories burned: {calories} kcal",
+  "@caloriesBurned": {
+    "description": "Calories burned count",
+    "placeholders": {
+      "calories": {
+        "type": "int"
+      }
+    }
+  },
+  "totalTime": "⏱️ Total time: {minutes} min",
+  "@totalTime": {
+    "description": "Total time in minutes",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "startWorkout": "Start workout",
+  "@startWorkout": {
+    "description": "Start workout button"
+  },
+  "createWorkout": "Create Workout",
+  "@createWorkout": {
+    "description": "Create workout screen title"
+  },
+  "save": "Save",
+  "@save": {
+    "description": "Save button"
+  },
+  "workoutName": "Workout Name",
+  "@workoutName": {
+    "description": "Workout name field label"
+  },
+  "workoutNameHint": "Ex: Morning Running Workout",
+  "@workoutNameHint": {
+    "description": "Workout name field hint"
+  },
+  "type": "Type",
+  "@type": {
+    "description": "Exercise type field label"
+  },
+  "selectType": "Select a type",
+  "@selectType": {
+    "description": "Exercise type field hint"
+  },
+  "unit": "Unit",
+  "@unit": {
+    "description": "Unit field label"
+  },
+  "minutes": "Minutes",
+  "@minutes": {
+    "description": "Minutes unit"
+  },
+  "meters": "Meters",
+  "@meters": {
+    "description": "Meters unit"
+  },
+  "kilometers": "Km",
+  "@kilometers": {
+    "description": "Kilometers unit"
+  },
+  "value": "Value ({unit})",
+  "@value": {
+    "description": "Value field with unit",
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel button"
+  },
+  "add": "Add",
+  "@add": {
+    "description": "Add button"
+  },
+  "enterWorkoutName": "Enter a name for the workout",
+  "@enterWorkoutName": {
+    "description": "Error message for empty workout name"
+  },
+  "addAtLeastOneExercise": "Add at least one exercise to the workout",
+  "@addAtLeastOneExercise": {
+    "description": "Error message for empty workout"
+  },
+  "workoutSavedSuccessfully": "Workout \"{workoutName}\" saved successfully! Session ID: {sessionId}",
+  "@workoutSavedSuccessfully": {
+    "description": "Success message when workout is saved",
+    "placeholders": {
+      "workoutName": {
+        "type": "String"
+      },
+      "sessionId": {
+        "type": "int"
+      }
+    }
+  },
+  "errorSavingWorkout": "Error saving workout: {error}",
+  "@errorSavingWorkout": {
+    "description": "Error message when saving workout fails",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "user": "User",
+  "@user": {
+    "description": "Default user name"
+  }
+}

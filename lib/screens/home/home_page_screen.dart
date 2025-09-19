@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pace_blocks/l10n/app_localizations.dart';
 import 'package:pace_blocks/screens/create_workout/create_workout_screen.dart';
 import 'package:pace_blocks/screens/home/widgets/welcome_widget.dart';
 
@@ -11,18 +12,28 @@ class HomePageScreen extends StatefulWidget {
 
 class _HomePageScreenState extends State<HomePageScreen> {
   int _selectedIndex = 0;
-  static const String _homeLabel = 'Home';
-  static const String _workoutLabel = 'Treinos';
 
   List<Widget> get _screens => const [HomeDashboard(), CreateWorkoutScreen()];
 
-  static const List<BottomNavigationBarItem> _navItems = [
-    BottomNavigationBarItem(icon: Icon(Icons.home), label: _homeLabel),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.directions_run),
-      label: _workoutLabel,
-    ),
-  ];
+  List<BottomNavigationBarItem> _getNavItems(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) {
+      return [
+        const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+        const BottomNavigationBarItem(
+          icon: Icon(Icons.directions_run),
+          label: 'Workouts',
+        ),
+      ];
+    }
+    return [
+      BottomNavigationBarItem(icon: Icon(Icons.home), label: l10n.home),
+      BottomNavigationBarItem(
+        icon: Icon(Icons.directions_run),
+        label: l10n.workouts,
+      ),
+    ];
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -39,7 +50,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.blueAccent,
         onTap: _onItemTapped,
-        items: _navItems,
+        items: _getNavItems(context),
       ),
     );
   }
