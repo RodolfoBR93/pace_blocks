@@ -32,7 +32,14 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
   @override
   void initState() {
     super.initState();
-    _loadWorkoutTypes();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_isLoading) {
+      _loadWorkoutTypes();
+    }
   }
 
   void _loadWorkoutTypes() async {
