@@ -75,7 +75,6 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
     if (_selectedType != null && value.isNotEmpty && _selectedUnit != null) {
       setState(() {
         if (_isEditing && _editingIndex != null) {
-          // Editando item existente
           _workouts[_editingIndex!] = WorkoutItem(
             id: _workouts[_editingIndex!].id,
             workoutSessionId: _workouts[_editingIndex!].workoutSessionId,
@@ -86,7 +85,6 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
           _isEditing = false;
           _editingIndex = null;
         } else {
-          // Adicionando novo item
           _workouts.add(
             WorkoutItem(
               id: null,
@@ -115,7 +113,7 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
     final item = _workouts[index];
     setState(() {
       _isEditing = true;
-      _isAdding = true; // Mostrar campos durante edição
+      _isAdding = true;
       _editingIndex = index;
       _selectedType = item.workoutType;
       _selectedUnit = item.unitType.name;
@@ -181,12 +179,11 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
           ),
         );
 
-        // Limpar o formulário após salvar com sucesso
         setState(() {
           _workouts.clear();
           _minutesController.clear();
           _workoutNameController.clear();
-          _selectedType = null; // Não definir tipo inicial
+          _selectedType = null;
           _selectedUnit = null;
           _isEditing = false;
           _isAdding = false;
