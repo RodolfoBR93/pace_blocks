@@ -37,10 +37,11 @@ class _CreateWorkoutScreenState extends State<CreateWorkoutScreen> {
 
   void _loadWorkoutTypes() async {
     try {
+      final locale = Localizations.localeOf(context);
+      final localeCode = locale.languageCode;
+
       final types = await _typeDao.getWorkoutTypes();
-      final units = await _unitDao.getUnitTypesByLocale(
-        'pt',
-      );
+      final units = await _unitDao.getUnitTypesByLocale(localeCode);
 
       setState(() {
         _workoutTypes = types;
